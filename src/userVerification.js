@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const connect= mongoose.connect('mongodb+srv://moses1model:knHAaE7cwIluJA7t@cluster0.jhxjl.mongodb.net/mail')
+const connect= process.env.DATABASE
 
 connect.then(()=>{
     console.log('userVerification database on')
