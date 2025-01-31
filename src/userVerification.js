@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const connect= process.env.DATABASE
+const connect= mongoose.connect(process.env.DATABASE);
 
 connect.then(()=>{
     console.log('userVerification database on')

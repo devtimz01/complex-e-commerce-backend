@@ -59,7 +59,7 @@ const verificationMail=({_id,email},res)=>{
 
     const mailOption={
         from: process.env.USER_SECRET,
-        to: email,
+        to: 'moses1model@gmail.com',
         subject: 'verify your email',
         html:`<p>click below to verify your email and login</p>
               <a href="${currentUrl}user/verify/${_id}/${uniqueString}">here</a>`
@@ -158,7 +158,7 @@ app.post('/login', async(req,res)=>{
         res.send('error');
     }
     //jwt auth..
-      /*const user ={
+     /* const user ={
         email:req.body.email,
         password:req.body.password,
         verified: false
@@ -166,21 +166,21 @@ app.post('/login', async(req,res)=>{
 
     const token = jwt.sign(user,process.env.MY_SECRET,{expiresIn:'3s'});
     res.cookie('token',token,{
-        httpOnly:true,
+        httpsOnly:true,
         //maxAge:1000,
         //secure:true,
         //signed:true
-    });
+    });*/
 
 });
   //verify token
-    app.get('/protected route',cookieJwtAuth, (req,res)=>{
-   return res.status(200).send('succesful');*/
-});
+    /*app.get('/protected route',cookieJwtAuth, (req,res)=>{
+   return res.status(200).send('succesful');
+});*/
 
 //verify the Verfication link sent to mail
 //create a /user route
-/* app.use('/user', router)
+ app.use('/user', router)
 
  router.get('/verify/:userId/:uniqueString',(req,res)=>{
     let {userId, uniqueString} = req.params;
@@ -267,7 +267,7 @@ app.post('/login', async(req,res)=>{
        return res.send('cannot find userId from userVErification record')
        
     })      
- });*/
+ });
 
  //passwordReset
 
