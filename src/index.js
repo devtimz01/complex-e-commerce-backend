@@ -18,6 +18,7 @@ const uuid4  = require('uuid');
 const expressRouter = require('express-router');
 const { getMaxListeners } = require('events');
 const router = express.Router();
+const { ObjectId} = mongoose.Types;
 
 const app= express();
 app.use(express.json());
@@ -124,7 +125,7 @@ app.post('/signup',async(req,res)=>{
         const userData = await collection.insertMany(data);
         console.log(userData);
         
-        verificationMail(userData,res);
+        verificationMail(userData[0],res);
      }
 });  
 
@@ -134,34 +135,29 @@ app.post('/login', async(req,res)=>{
         //check if username matches
         const check = await collection.findOne({email:req.body.email})
         if(!check){
-            res.send('username does not exist');
+           return res.send('username does not exist');
         }
         //check if password matches
         const isPasswordMatch = await bcrypt.compare(req.body.password,check.password)
         if(!isPasswordMatch){
-            res.send('wrong password')
+           return res.send('wrong password')
         }
         //if (!data[0].verified)
         else{
            console.log('users credentials match')
         }
 
-        if(!data[0].verified){
-            res.send('email not verified')
-            console.log('email not verified')
+        if(!check.verified){
+           console.log('email not verified')
+           return res.send('email not verified')
+    
         }
         else{
-            res.render('home');
-        }
-    }
-    catch{
-        res.send('error');
-    }
-    //jwt auth..
-     /* const user ={
-        email:req.body.email,
-        password:req.body.password,
-        verified: false
+             //jwt auth..
+      const data ={
+        email:check.email,
+        _id:check._id,
+        verified:check.verified
     };
 
     const token = jwt.sign(user,process.env.MY_SECRET,{expiresIn:'3s'});
@@ -170,28 +166,36 @@ app.post('/login', async(req,res)=>{
         //maxAge:1000,
         //secure:true,
         //signed:true
-    });*/
+    });
+           return res.render('home');
+        }
+    }
+    catch(error){
+        console.error('login error:',error);
+        return res.status(500).send('an error occurred during login')
+    }
 
 });
+
   //verify token
-    /*app.get('/protected route',cookieJwtAuth, (req,res)=>{
+    app.get('/protected route',cookieJwtAuth, (req,res)=>{
    return res.status(200).send('succesful');
-});*/
+});
 
 //verify the Verfication link sent to mail
 //create a /user route
  app.use('/user', router)
 
- router.get('/verify/:userId/:uniqueString',(req,res)=>{
+/* router.get('/verify/:userId/:uniqueString',(req,res)=>{
     let {userId, uniqueString} = req.params;
     //verify userVerification record
     userVerification
     .findOne({userId})
     .then((result)=>{
-        if(result){
+        if(result.length>0){
             //userVerification record exist
-            const {expiresAt} = result;
-            const hashedUniqueString = result.uniqueString
+            const {expiresAt} = result[0];
+            const hashedUniqueString = result[0].uniqueString
 
             if(expiresAt<Date.now()){
                 userVerification
@@ -267,8 +271,73 @@ app.post('/login', async(req,res)=>{
        return res.send('cannot find userId from userVErification record')
        
     })      
- });
+ });*/
 
+ router.get('/verify/:userId/:uniqueString', async (req, res) => {
+    let { userId, uniqueString } = req.params;
+
+    try {
+        const userObjectId = new ObjectId(userId); // Convert userId to ObjectId
+
+        const result = await userVerification.findOne({ userId: userObjectId }); // Use userObjectId
+
+        if (!result) {
+            console.log('Cannot find verification record');
+            return res.status(404).send('Verification record does not exist');
+        }
+
+        const { expiresAt, uniqueString: hashedUniqueString } = result;
+
+        if (expiresAt < Date.now()) {
+            try {
+                await userVerification.deleteOne({ userId: userObjectId }); // Use userObjectId
+                console.log('Expired UserVerification record deleted');
+
+                await collection.deleteOne({ _id: userObjectId }); // Use userObjectId (and convert _id if needed)
+                console.log('Expired User record deleted');
+
+                return res.send('Expired user and verification records deleted');
+            } catch (err) {
+                console.error('Error deleting expired records:', err);
+                return res.status(500).send('Error deleting expired records');
+            }
+        } else {
+            try {
+                const match = await bcrypt.compare(uniqueString, hashedUniqueString);
+
+                if (match) {
+                    try {
+                        await collection.updateOne({ _id: userObjectId }, { verified: true }); // Use userObjectId (and convert _id if needed)
+                        console.log('User verified successfully');
+
+                        await userVerification.deleteOne({ userId: userObjectId }); // Use userObjectId
+                        console.log('UserVerification record deleted');
+
+                        return res.json({
+                            status: 'passed',
+                            message: 'Email verified successfully, proceed to login'
+                        });
+                    } catch (err) {
+                        console.error('Error updating user or deleting verification:', err);
+                        return res.status(500).json({
+                            status: 'failed',
+                            message: 'Email verification failed'
+                        });
+                    }
+                } else {
+                    console.log('String mismatch');
+                    return res.status(400).send('Invalid verification link');
+                }
+            } catch (err) {
+                console.error('Error comparing strings:', err);
+                return res.status(500).send('Error verifying email');
+            }
+        }
+    } catch (err) {
+        console.error('Error finding verification record:', err);
+        return res.status(500).send('Error verifying email');
+    }
+});
  //passwordReset
 
  //2-factor Auth with otp...
