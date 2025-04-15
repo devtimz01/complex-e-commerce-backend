@@ -26,8 +26,12 @@ const loginSchema = new mongoose.Schema(
         verified:{
             type: Boolean,
             default:false
+        },
+        role: {
+            type: String,
+            enum: ['admin', 'customer'],
+            default : 'customer'
         }
-
     }
 )
   const collection = new mongoose.model('collection',loginSchema,'mails');
