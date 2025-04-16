@@ -86,6 +86,98 @@ router.delete('/:id',async(req,res)=>{
     }
 });
 
+//route- /api/user
+//@desc- sort products by optional query
+//access- public
+router.get('/',async(req,res)=>{
+    const{
+        collections,
+        category,
+        search,
+        gender,
+        colors,
+        brand,
+        material,
+        limit,
+        size,
+        sortBy,
+        minPrice,
+        maxPrice
+    } = req.query
+
+    let query = {};
+    try{  //using mongoose operationals $..
+        if(collections && collections.toLocaleLowerCase() !='all'){
+            query.collections = collections;
+        }
+
+       if(category&&category.toLowerCase() !=='all'){
+        query.category = category;
+       }
+       if(gender){
+        query.gender = gender
+       }
+       if(colors){
+        query.colors={$in:[color]}
+       }
+       if(brand){
+        query.brand={$in:brand. split(',')}
+       }
+       if(size){
+        query.color ={$in:size. split(',')}
+       }
+       if(minPrice || maxPrice){
+        query.price= {}
+        if(minPrice) query.price.gte = Number(minPrice);
+        if(maxPrice) query.price.lte = Number(maxPrice);
+       }
+       if(search){
+        query.$or= [
+            {
+                name:{
+                    $regex:search, $options :"i"
+                },
+                description:{
+                    $regex: search, $options :'i'
+                }
+            }
+        ]
+       }
+       let sort ={}
+       if(sortBy){
+         switch(sortBy){
+            case "priceAsc": {
+                sort={
+                    price:-1
+                }
+            }
+            break;
+            case "pricedesc" :{
+                sort = {
+                    price:1
+                }
+            }
+            break;
+            case "popularity" :{
+                sort={
+                    rating : 1
+                }
+            }
+            break;
+            default: break;
+         }
+       }
+       let products =await productRequestCollection.find(query).sort(sort).limit(Number(limit)||0);
+       res.json({
+        products
+       });
+
+    }
+    catch(err){
+        console.log(err)
+        res.status(500).send('server error');
+    }
+})
 
 module.exports = router;
 
