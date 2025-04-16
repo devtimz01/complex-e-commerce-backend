@@ -178,6 +178,55 @@ router.get('/',async(req,res)=>{
     }
 })
 
+
+
+//@route /api/user/:id
+//@desc find a single product by id
+//@access public
+router.get('/:id',async(req,res)=>{
+    const{_id}= req.params;
+    try{
+        const product = await productRequestCollection.findById({_id})
+        if(!product){
+            return res.status(500).send('product not found')
+        }
+        else{
+            return res.status(200).json({
+                product
+            });
+        }
+    }
+    catch(err){
+        return res.status(500).send('server error')
+    }
+})
+
+//@route /api/user/similar/:id
+//@desc find similar product
+//@access public
+router.get('/similar/:id', async(req,res)=>{
+    const{_id}= req.params;
+    try{
+        const products = await productRequestCollection.findById({_id});
+        const product = await productRequestCollection.find({
+            _id: {$ne: products._id},
+            gender: products.gender,
+            category: products.category
+        })
+        if(!product){
+        return res.status(500).send('product not found')
+        }
+        else{
+            res.json({
+                product
+               });   
+        }
+    }
+    catch(err){
+        return res.status(500).send('server error')
+    }
+})
+
 module.exports = router;
 
 //Architecture...(RBAC)
