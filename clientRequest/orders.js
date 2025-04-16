@@ -6,8 +6,8 @@ const {cookiejwtAuth, admin} = require('../middleware/cookieJwtAuth');
 
 //product route api/user/
 router.post('/',cookiejwtAuth, admin, async(req,res)=>{
-    //ensure to identify admin or client Request....
-    //upload images with cloudinar
+    //ensure to identify admin or client Request...
+    //upload images with cloudinary 
     try{
         const {
             productName,

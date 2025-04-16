@@ -12,27 +12,34 @@ check
 })
 
 const productSchema = new mongoose.Schema({
-    productName:{
-        type: String,
-        required: true
-    },
-    price:{
-        type: Number,
-        required: true
-    },
-    imageUrl:{
-        type: String,
-        required: false
-    },
-    svu:{
-        type: String,
-        unique:'true'
-    },
-    user:{
-        type : mongoose.Schema.Types.ObjectId,
-        ref : "user"
-    }
-
+    
+        name: String,
+        description: String,
+        price: Number,
+        discountPrice: Number,
+        countInStock: Number,
+        sku: String,
+        category: String,
+        brand: String,
+        sizes: [String],
+        colors: [String],
+        collections: String,
+        material: String,
+        gender: String,
+        images: [
+          {
+            url: String,
+            altText: String,
+          },
+          {
+            url: String,
+            altText: String,
+          },
+        ],
+    
+        rating: Number,
+        numReviews: Number
+      
 })
 
 const productRequestCollection = new mongoose.model('productRequestSchema', productSchema,'products');
