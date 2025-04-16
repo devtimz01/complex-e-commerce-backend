@@ -57,8 +57,7 @@ router.put('/:id',cookiejwtAuth,admin, async (req,res)=>{
         return res.status(201).json({
             message: ' new product added by admin',
             updatedProduct
-        })
-        
+        })    
     }
     catch(err){
         return res.status(500).json({
@@ -103,7 +102,7 @@ router.get('/',async(req,res)=>{
         sortBy,
         minPrice,
         maxPrice
-    } = req.query
+    } = req.query;
 
     let query = {};
     try{  //using mongoose operationals $..
@@ -148,19 +147,19 @@ router.get('/',async(req,res)=>{
          switch(sortBy){
             case "priceAsc": {
                 sort={
-                    price:-1
+                    price:1
                 }
             }
             break;
-            case "pricedesc" :{
+            case "priceDesc":{
                 sort = {
-                    price:1
+                    price:-1
                 }
             }
             break;
             case "popularity" :{
                 sort={
-                    rating : 1
+                    rating : -1
                 }
             }
             break;
