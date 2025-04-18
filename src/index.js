@@ -22,6 +22,7 @@ const otpCollection = require('./otp.js');
 const crypto = require('crypto');
 const passwordReset =require('./passwordReset.js');
 const userRouter = require('../clientRequest/orders.js')
+const cartRouter = require('../clientRequest/cartRoute.js')
 
 const app= express();
 app.use(express.json());
@@ -31,6 +32,7 @@ app.set('view engine','hbs');
 app.use(express.static('public')); //static files
 app.use(cookieParser());
 app.use('/api/user',userRouter);
+app.use('/api/cart',cartRouter);
 
 app.get('/',(req,res)=>{
    res.render('login');

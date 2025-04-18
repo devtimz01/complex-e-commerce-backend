@@ -14,6 +14,7 @@ const seedData=async()=>{
     try{
         await productRequestCollection.deleteMany();
         await user.deleteMany();
+        await cart.deleteMany()
         //admin info
         const defaultUser = await user.create({
             email: 'admin@gmail.com',

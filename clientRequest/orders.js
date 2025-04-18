@@ -68,7 +68,6 @@ router.put('/:id',cookiejwtAuth,admin, async (req,res)=>{
 
 //route to delete product
 router.delete('/:id',async(req,res)=>{
-
     try{
     const product = await productRequestCollection.findById(req.params.id);
         if(product){
@@ -176,17 +175,55 @@ router.get('/',async(req,res)=>{
         console.log(err)
         res.status(500).send('server error');
     }
-})
+});
 
+//@route /api/user/highestRating
+//@desc sort by highest seller
+//@access public
+router.get('/highestRating',async(req,res)=>{
+    try{
+        const product = await productRequestCollection.findOne().sort({rating:-1})
+        if(!product){
+          return res.status(500).send('cannot find product');
+        }
+        else{
+            res.status(201).json({
+                product
+               });       
+        }
+    }
+    catch(err){
+        return res.status(500).send('server error');
+    }
+});
 
+//@route /api/user/latestProduct
+//@desc sort by latestProduct
+//@access public
+router.get('/latestProduct',async(req,res)=>{
+   try{
+    const product = await productRequestCollection.find().sort({createdAt:-1}).limit(8);
+    if(!product){
+        return res.status(500).send('cannot find product');
+      }
+      else{
+          res.status(201).json({
+              product
+             });       
+      }
+   }
+   catch(err){
+        return res.status(500).send('server error');
+   }
+});
 
 //@route /api/user/:id
 //@desc find a single product by id
 //@access public
 router.get('/:id',async(req,res)=>{
-    const{_id}= req.params;
+    const{id}= req.params;
     try{
-        const product = await productRequestCollection.findById({_id})
+        const product = await productRequestCollection.findById(id)
         if(!product){
             return res.status(500).send('product not found')
         }
@@ -194,9 +231,10 @@ router.get('/:id',async(req,res)=>{
             return res.status(200).json({
                 product
             });
-        }
+        } 
     }
     catch(err){
+        console.log(err)
         return res.status(500).send('server error')
     }
 })
@@ -205,9 +243,8 @@ router.get('/:id',async(req,res)=>{
 //@desc find similar product
 //@access public
 router.get('/similar/:id', async(req,res)=>{
-    const{_id}= req.params;
     try{
-        const products = await productRequestCollection.findById({_id});
+        const products = await productRequestCollection.findById(req.params.id);
         const product = await productRequestCollection.find({
             _id: {$ne: products._id},
             gender: products.gender,
