@@ -41,7 +41,7 @@ router.post('/', async(req,res)=>{
              //increase quantity, calculate totalPrice if cart exist
              cart.products[productIndex].quantity+= quantity;
         }
-        else{
+        else if{
             //add new product to existing cart
                cart.products.push({
                 productId,size, color, quantity
@@ -52,13 +52,37 @@ router.post('/', async(req,res)=>{
             acc+item.price*item.quantity
         });
         await cart.save();
-        
+        //add new cart- no existing cart available
+        else(cart.products==null){
+            const newCart = await cart.Create({
+                productId,size, color, quantity
+            });
+            
+        }
     }
     catch(err){
         return res.status(500).send('server erro')       
     }
 })
 
-//update and delete products in my cart
+//update product qyantity in cart
+//@route /api/cart/update
+//@desc update productQuantity
+//@acces public
+
+router.put('/update',(req,res)=>{
+
+})
+
+// delete products from cart
+//@route /api/cart/delete
+//@desc update productQuantity
+//@acces public
+
+router.delete('/delete',(req,res)=>{
+
+})
+
+
 
 module.exports= router;
