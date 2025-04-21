@@ -17,7 +17,9 @@ const cartSchema =new mongoose.Schema({
         required: true
     },
     name: String,
-    price: String,
+    price: {
+        type:Number,
+        required: true},
     size: String,
     color: String,
     quantity:{
@@ -31,8 +33,7 @@ const cartSchema =new mongoose.Schema({
 const cartBox = new mongoose.Schema({
     user:{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'collection',
-        required: true
+        ref: 'collection'
     },
     guestId : String,
     products:[cartSchema],
@@ -48,5 +49,5 @@ const cartBox = new mongoose.Schema({
   {timestamps: true}  
 )
 
-const cart = new mongoose.model('cart',cartBox,'cart');
-module.exports = cart;
+const Cart = new mongoose.model('Cart',cartBox,'cartItem');
+module.exports = Cart;
