@@ -3,6 +3,7 @@ const router = express.Router();
 const Cart = require('../model/cartSchema');
 const collection = require('../src/config');
 const productRequestCollection = require('./requestSchema');
+const { cookiejwtAuth } = require('../middleware/cookieJwtAuth');
 
 //function to identify logged in or logged out user Cart
 
@@ -82,14 +83,14 @@ router.post('/', async(req,res)=>{
 })
 
 //update product qyantity in cart
-//@route /api/cart/:id
+//@route /api/cart/update
 //@desc update productQuantity
 //@acces public
 
 router.put('/update',async(req,res)=>{
     const{productId,size, color, quantity,userId,guestId}= req.body;
     try{
-        const cart = await getCart(userId,guestId)
+        let cart = await getCart(userId,guestId)
         if(!cart){
             return res.status(500).send('cart does not exist')
         }
@@ -111,11 +112,11 @@ router.put('/update',async(req,res)=>{
             await cart.save();
        }
        else{
-        return res.status(404).send('cart not found')
+        return res.status(404).send('product not found')
        }
     }
     catch(err){
-        console.log(err)
+        console.log(err);
         return res.status(500).send('product update failed')
     }
 })
@@ -151,4 +152,88 @@ router.delete('/delete',async(req,res)=>{
     }
 })
 
+//@route api/cart/getcart
+//@desc findUsersCart
+//@access public
+   router.get('/getCart',async(req,res)=>{
+      const{userId,guestId}= request.query;
+        try{
+            let cart = await getCart(userId,guestId)
+            if(!cart){
+                return res.status(404).send('cart not found');
+            }
+            else{
+                return res.status(201).json({
+                    cart
+                });
+            }
+        }
+        catch(err){
+            return res.status(500).send('server error');
+        }
+   })
+
+//@route api/cart/mergeCart
+//@desc merge..only loggedIn users can checkout
+//@access public...
+
+router.post('/mergeCart',cookiejwtAuth, async(req,res)=>{
+    const{guestId} = req.body;
+    const userCart = await Cart.findOne({user:req.user._id})
+    const guestCart = await Cart.findOne({guestId});
+
+   try{
+    //merge guestCart t0 userCart
+   if(guestCart){
+    if(guestCart.products.length==0){
+        return res.status(404).send('guestCart not found')
+    }
+    if(userCart){
+        //merge guestItem into userCart
+        guestCart.products.forEach((guestItem)=>{
+            const productIndex= userCart.products.findByIndex((item)=>{
+                item.productId.toString()==productId &&
+                item.color==color&&
+                item.size == size
+            })
+        })
+    if(productIndex>-1){
+        //increae quantity if products exist already
+        userCart.products[productIndex].quantity+=guestItem.quantity
+    }
+    else{
+        userCart.products.push(guestItem);
+    }
+    //recalculate
+     userCart.totalPrice = userCart.products.reduce((acc,item)=>{
+        acc+ item.product* item.quantity
+    })
+    await userCart.save();
+    //delete merged guestCart
+    try{
+        await Cart.findOneAndDelete({guestId});
+    }
+    catch(err){
+        console.log('error removing merged guestCart');
+    }
+      return res.status(201).json({userCart});
+   }
+    //assign user to guestCart if userCart does not exist
+   else{
+    guestCart.user= req.user._id;
+    guestCart.guestId = undefined;
+    await guestCart.save();
+    return res.status(201).json({guestCart});
+}
+}
+   //guest cart has already been merged
+   else{
+       return res.json({userCart});
+   }  
+   }
+   catch(err){
+      return res.status(500).send('server error');
+   }   
+});
+    
 module.exports= router;
