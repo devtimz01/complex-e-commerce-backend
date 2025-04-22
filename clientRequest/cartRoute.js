@@ -86,10 +86,33 @@ router.post('/', async(req,res)=>{
 //@desc update productQuantity
 //@acces public
 
-router.put('/:id',async(req,res)=>{
+router.put('/update',async(req,res)=>{
+    const{productId,size, color, quantity,userId,guestId}= req.body;
     try{
-        const product= await Cart.findById(req.params.id)
-    
+        const cart = await getCart(userId,guestId)
+        if(!cart){
+            return res.status(500).send('cart does not exist')
+        }
+        const productIndex= cart.products.findIndex((p)=>{
+            p.productId.toString()== productId&&
+            p.color==color&&
+            p.size == size
+        })
+       if(productIndex>-1){
+            if(quantity>0){
+            cart.products[productIndex].quantity= quantity;}
+            else{
+                //remove product if quantity is 0
+                 cart.products.splice(productIndex,1);
+            } 
+            cart.totalPrice = cart.products.reduce((acc,item)=>{
+                acc+item.price* item.quantity
+            })
+            await cart.save();
+       }
+       else{
+        return res.status(404).send('cart not found')
+       }
     }
     catch(err){
         console.log(err)
@@ -103,24 +126,29 @@ router.put('/:id',async(req,res)=>{
 //@acces public
 
 router.delete('/delete',async(req,res)=>{
+    const{productId,size, color, quantity,userId,guestId}= req.body;
     try{
-        const product = cart.products.findIndex((p)=>{
-            p.productId.toString()== productId &&
-            p.size== size && p.color==color       
+        let cart = await getCart(userId,guestId);
+        if(!cart){
+            return res.status(404).send('cart not found');
+        }
+        const productIndex= cart.products.findByIndex((p)=>{
+           p.productId.toString()==productId &&
+           p.color==color&&
+           p.size == size
         })
-        if(product>-1){
-                cart.products[productId].deleteOne()
-                await cart.save()
-                return res.status(201).send('product successfully deleted');
-        }
-        else{
-            return res.status(500).send('failed to update quantity')                
-        }
-    }
+           if(productIndex>-1){
+                cart.products.splice(productIndex,1);
+           }
+           cart.totalPrice=cart.products.reduce((acc,item)=>{
+               acc+item.price* item.quantity
+           })
+           await cart.save()
+           return res.status(201).json({cart});
+     }
     catch(err){
             return res.status(500).send('server error')                
     }
-
 })
 
 module.exports= router;
