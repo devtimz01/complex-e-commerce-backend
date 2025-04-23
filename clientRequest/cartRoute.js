@@ -95,7 +95,7 @@ router.put('/update',async(req,res)=>{
             return res.status(500).send('cart does not exist')
         }
         const productIndex= cart.products.findIndex((p)=>{
-            p.productId.toString()== productId&&
+           return p.productId.toString()== productId&&
             p.color==color&&
             p.size == size
         })
@@ -103,17 +103,18 @@ router.put('/update',async(req,res)=>{
             if(quantity>0){
             cart.products[productIndex].quantity= quantity;}
             else{
-                //remove product if quantity is 0
+                //remove product if quantity is 0 
                  cart.products.splice(productIndex,1);
             } 
-            cart.totalPrice = cart.products.reduce((acc,item)=>{
-                acc+item.price* item.quantity
-            })
-            await cart.save();
        }
        else{
         return res.status(404).send('product not found')
        }
+       cart.totalPrice = cart.products.reduce((acc,item)=>{
+        return acc+ item.price* item.quantity
+       },0)
+       await cart.save(); 
+       return res.json({cart});
     }
     catch(err){
         console.log(err);
@@ -223,8 +224,7 @@ router.post('/mergeCart',cookiejwtAuth, async(req,res)=>{
     guestCart.user= req.user._id;
     guestCart.guestId = undefined;
     await guestCart.save();
-    return res.status(201).json({guestCart});
-}
+    return res.status(201).json({guestCart});}
 }
    //guest cart has already been merged
    else{
