@@ -1,18 +1,13 @@
 const mongoose = require('mongoose');
 require('dotenv').config();
 
-const connect= mongoose.connect(process.env.DATABASE, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    //poolSize: 10,
-});
-
+const connect= mongoose.connect(process.env.DATABASE);
 
 connect.then(()=>{
     console.log('database connected');
 })
-.catch(()=>{
-    console.log('database not connected');
+.catch((err)=>{
+    console.log(err);
 })
 //schema
 const loginSchema = new mongoose.Schema(

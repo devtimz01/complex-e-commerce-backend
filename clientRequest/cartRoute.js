@@ -134,8 +134,8 @@ router.delete('/delete',async(req,res)=>{
         if(!cart){
             return res.status(404).send('cart not found');
         }
-        const productIndex= cart.products.findByIndex((p)=>{
-           p.productId.toString()==productId &&
+        const productIndex= cart.products.findIndex((p)=>{
+          return p.productId.toString()==productId &&
            p.color==color&&
            p.size == size
         })
@@ -143,10 +143,10 @@ router.delete('/delete',async(req,res)=>{
                 cart.products.splice(productIndex,1);
            }
            cart.totalPrice=cart.products.reduce((acc,item)=>{
-               acc+item.price* item.quantity
-           })
+              return acc+item.price* item.quantity
+           },0)
            await cart.save()
-           return res.status(201).json({cart});
+           return res.status(200).json({cart});
      }
     catch(err){
             return res.status(500).send('server error')                
@@ -156,8 +156,8 @@ router.delete('/delete',async(req,res)=>{
 //@route api/cart/getcart
 //@desc findUsersCart
 //@access public
-   router.get('/getCart',async(req,res)=>{
-      const{userId,guestId}= request.query;
+   router.get('/',async(req,res)=>{
+      const{userId,guestId}= req.query;
         try{
             let cart = await getCart(userId,guestId)
             if(!cart){
