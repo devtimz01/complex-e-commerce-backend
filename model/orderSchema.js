@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 require('dotenv').config();
 mongoose.connect(process.env.DATABASE);
 
-const cartOrder = new mongoose.Schema({
+const orderItem = new mongoose.Schema({
         productId:{
             type: mongoose.Schema.Types.ObjectId,
             ref: 'productRequestCollection',
@@ -22,12 +22,12 @@ const cartOrder = new mongoose.Schema({
        {_id: false}
     )
 
-const checkoutPage = new mongoose.Schema({
+const orderList = new mongoose.Schema({
     user:{
             type: mongoose.Schema.Types.ObjectId,
             ref: 'collection'
         },
-    checkoutItem: [cartOrder],
+    checkoutItem: [orderItem],
     shippingAddress:{
         type: Object,
         required: true
@@ -84,5 +84,5 @@ const checkoutPage = new mongoose.Schema({
 {timestamps: true}
 )
 
-const checkout = new mongoose.model('checkout',checkoutPage,'checkoutData');
-module.exports = checkout;
+const Orders = new mongoose.model('Orders',orderList,'orderData');
+module.exports = Orders;
