@@ -55,10 +55,11 @@ router.post('/paymentGateway',async(req,res)=>{
 router.put('/:id',async(req,res)=>{
     const{paymentStatus,isPaid}= req.body;
     try{
-
+        await checkout.updateOne({_id:req.user_id},{$set:{isPaid: true, paymentStatus:finalized}})
+        return res.status(201).send('payment status updated')
     }
     catch(err){
-
+        return res.status(500).send('payment status failed to update')
     }
 })
 
@@ -66,6 +67,7 @@ router.put('/:id',async(req,res)=>{
 //@desc finalize after payment
 //@access public
 router.post('/finalize',async(req,res)=>{
+    
 
 })
 
