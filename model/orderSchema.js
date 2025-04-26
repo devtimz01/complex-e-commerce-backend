@@ -23,65 +23,64 @@ const orderItem = new mongoose.Schema({
     )
 
 const orderList = new mongoose.Schema({
-    user:{
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'collection'
+     user:{
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'collection',
+                required : true
+            },
+        orderItems: [orderItem],
+        shippingAddress:{
+            address:{
+                type: String,
+                required: true
+            },
+            city:{
+                type: String,
+                required: true
+            },
+            postalCode:{
+                type: String,
+                required: true
+            },
+            country:{
+                type: String,
+                required: true
+            }
         },
-    checkoutItem: [orderItem],
-    shippingAddress:{
-        type: Object,
-        required: true
+        paymentMethod:{
+            type: String,
+            required: true
+        },
+        totalPrice:{
+            type: Number,
+            required: true
+        },
+        isPaid:{
+            type: Boolean,
+            required: true
+        },
+        paidAt:{
+            type: Date,
+            required: true
+        },
+        isDelivered:{
+            type: Boolean,
+            default: false
+        },
+        deliveredAt:{
+            type:Date
+        },
+        paymentStatus:{
+            type: String,
+            default : 'pending'
+        },
+        status:{
+            type:String,
+            enum:["processing","shipped","delivered","cancelled"],
+            default: "processing"
+        }
     },
-    address:{
-        type: String,
-        required: true
-    },
-    city:{
-        type: String,
-        required: true
-    },
-    postalCode:{
-        type: String,
-        required: true
-    },
-    country:{
-        type: String,
-        required: true
-    },
-    paymentMethod:{
-        type: String,
-        required: true
-    },
-    totalPrice:{
-        type: Number,
-        required: true
-    },
-    isPaid:{
-        type: Boolean,
-        required: true
-    },
-    paidAt:{
-        type: Date,
-        required: true
-    },
-    paymentStatus:{
-        type: String,
-        required: true
-    },
-    paymentDetails:{
-        type: String,
-        required: true
-    },
-    isFinalized:{
-        type: Boolean,
-        required: true
-    },
-    finalizedAt:{
-        type: Date,
-        required: true
-    },   
-},
-{timestamps: true}
+    {timestamps: true}
 )
 
 const Orders = new mongoose.model('Orders',orderList,'orderData');

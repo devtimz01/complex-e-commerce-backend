@@ -25,28 +25,27 @@ const cartOrder = new mongoose.Schema({
 const checkoutPage = new mongoose.Schema({
     user:{
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'collection'
+            ref: 'collection',
+            required : true
         },
     checkoutItem: [cartOrder],
     shippingAddress:{
-        type: Object,
-        required: true
-    },
-    address:{
-        type: String,
-        required: true
-    },
-    city:{
-        type: String,
-        required: true
-    },
-    postalCode:{
-        type: String,
-        required: true
-    },
-    country:{
-        type: String,
-        required: true
+        address:{
+            type: String,
+            required: true
+        },
+        city:{
+            type: String,
+            required: true
+        },
+        postalCode:{
+            type: String,
+            required: true
+        },
+        country:{
+            type: String,
+            required: true
+        }
     },
     paymentMethod:{
         type: String,
@@ -66,19 +65,17 @@ const checkoutPage = new mongoose.Schema({
     },
     paymentStatus:{
         type: String,
-        required: true
+        default : 'pending'
     },
     paymentDetails:{
-        type: String,
-        required: true
+        type:mongoose.Schema.Types.Mixed
     },
     isFinalized:{
         type: Boolean,
-        required: true
+        default: false
     },
     finalizedAt:{
-        type: Date,
-        required: true
+        type: Date
     },   
 },
 {timestamps: true}

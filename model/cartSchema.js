@@ -35,7 +35,7 @@ const cartBox = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'collection'
     },
-    guestId : String,
+    
     products:[cartSchema],
     quantity: {
         type:Number
