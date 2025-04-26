@@ -2,6 +2,7 @@ const checkout = reqiure('../model/checkoutSchema');
 const {cookiejwtAuth,admin} = require('../middleware/cookieJwtAuth');
 const Cart = require('../model/cartSchema');
 const productRequestCollection = require('./requestSchema');
+const Orders = require('../model/orderSchema');
 const router = express.Router();
 const stripe = require('stripe')(process.env.STRIPE_KEY);
 require('dotenv').config();
@@ -9,20 +10,20 @@ require('dotenv').config();
 //route /api/checkout
 //@desc checkout..verify if deliveryDetails have been checked
 //@access public
-router.get('/',cookiejwtAuth,async(req,res)=>{
+router.post('/',cookiejwtAuth,async(req,res)=>{
     const {checkoutItem,shippingAddress,paymentMethod,totalPrice}=req.body;
     if(!checkoutItem||checkoutItem.legnth==0){
         return res.status(404).send('no items in checkout')
     }
     try{
        const newCheckoutList = await checkout.create({
+            user,
             checkoutItem,
             shippingAddress,
             paymentMethod,
-            deliveryFee,
             totalPrice,
             isPaid: false,
-            paymentStatus: pending,
+            paymentStatus: "pending",
         });
         //NB: add a delivery fee to the total cartItem.price
         res.status(201).json({newCheckoutList});
@@ -60,9 +61,9 @@ router.post('/paymentGateway',async(req,res)=>{
 //@desc update paymentStatus if it's paid
 //@access public
 router.put('/:id',async(req,res)=>{
-    const{paymentStatus,isPaid}= req.body;
+    const{paymentStatus,paymentDetails}= req.body;
     try{
-      const updatedCheckout =  await checkout.updateOne({_id:req.params.id},{$set:{isPaid: true, paymentStatus:finalized}})
+      const updatedCheckout =  await checkout.updateOne({_id:req.params.id},{$set:{isPaid: true, paymentStatus,paymentDetails}})
         return res.status(201).json({updatedCheckout});
     }
     catch(err){
@@ -73,16 +74,40 @@ router.put('/:id',async(req,res)=>{
 //route /api/checkout/finalize
 //@desc finalize after payment
 //@access public
-router.get('/finalize',async(req,res)=>{
-
+router.post('/:id/finalize',cookiejwtAuth,async(req,res)=>{
     //convert your checkout to an order
-    const order= await order.create({})
+    try{
+        const checkout = await checkout.findById(req.params.id)
+        if(!checkout){
+            return res.status(404).send('chcekout not found')
+        }
+           if(checkout.isPaid && !checkoutisFinalized){
+            //create a final order
+              const finalOrder = await Orders.create({
+               user:checkout.user,
+               orderItems:checkout.checkoutItem ,
+               shippingAddress: checkout.shippingAddress,
+               paymentMethod: checkout.paymentMethod,
+               totalPrice: checkout.totalPrice,
+               isPaid: true,
+               paidAt: checkout.paidAt,
+               paymentStatus: "paid",
+               paymentDetails: checkout.paymentDetails,
+               isDelivered : false
+              })
+              //mark checkout as finalized
+              checkout.isFinalized = true;
+              checkout.isFinalizedAt= Date.now();
 
+        }
     //delete checkout cart since its already converted to an order
-    await Cart.findOneAndDelete({})
-
+         await Cart.findOneAndDelete({user:checkout.user})
+         return res.satus(200).json({finalOrder});
+    }
+    catch(err){
+        return res.satus(500).send('server error detected while processing order');
+    }
 })
-
 
 module.exports = router;
 
