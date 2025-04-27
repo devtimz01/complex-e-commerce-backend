@@ -27,6 +27,7 @@ const checkoutRouter = require('../clientRequest/checkoutRoute.js')
 const orderRouter = require('../clientRequest/orderRoute.js');
 const getProductRouter = require('../adminPanel/productManagement.js')
 const orderStatusRouter = require('../adminPanel/orderManagement.js');
+const uploadRouter = require('../adminPanel/uploadRoute.js')
 
 const app= express();
 app.use(express.json());
@@ -41,6 +42,7 @@ app.use('/api/checkout',checkoutRouter);
 app.use('/api/order',orderRouter);
 app.use('/api/getProduct',getProductRouter);
 app.use('/api/orderStatus',orderStatusRouter);
+app.use('/api/upload',uploadRouter);
 
 
 app.get('/',(req,res)=>{

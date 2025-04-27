@@ -36,3 +36,4 @@ module.exports = router;
 
 //send an event to paid/finalized users using socket.io (webSocket)--->
 // io.to(paidUsersId).emit("messages",order.status)
+//focus on Api Optimization for faster reponses---(store frequent/similar requests in a cache)

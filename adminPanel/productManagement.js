@@ -6,7 +6,7 @@ const { cookiejwtAuth ,admin} = require('../middleware/cookieJwtAuth');
 //@route /api/getProduct
 //@desc get all products
 //@acccess public
-router.get('/',cookiejwtAuth,admin, async(req,res)=>{
+router.get('/',cookiejwtAuth, async(req,res)=>{
     try{
         const allProducts = await products.find();
         //or products posted by Admin specific user products.find({user:req.user._id})
