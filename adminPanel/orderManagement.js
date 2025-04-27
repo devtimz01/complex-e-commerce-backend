@@ -1,7 +1,6 @@
-//get order or sort by preferences
+//get all orders && update status
 
-//add users
-//subcribers
-//orderManagement
+
+
 
 //send an event to paid users using socket.io (webSocket)

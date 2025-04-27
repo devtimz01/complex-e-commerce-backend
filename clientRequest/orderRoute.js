@@ -4,10 +4,10 @@ const {cookiejwtAuth} = require('../middleware/cookieJwtAuth');
 
 //@route Post/api/order
 //@desc- getOrders 
-//@access public 
-router.get('/',cookiejwtAuth,async(req,res)=>{
+//@access private 
+router.get('/:id',cookiejwtAuth,async(req,res)=>{
     try{
-        const order = await Orders.find({user:req.user._id})
+        const order = await Orders.findById(req.params.id).populate("user","name email")
         if(!order){
             return res.status(404).send('orders not found')
         }
@@ -20,10 +20,10 @@ router.get('/',cookiejwtAuth,async(req,res)=>{
     }
 })
 
-//@route Post/api/sortOrder
+//@route Post/api/order/sort
 //@desc- sortOrders by latest
-//@access public 
-router.get('/sortOrder',cookiejwtAuth,async(req,res)=>{
+//@access private
+router.get('/sort',cookiejwtAuth,async(req,res)=>{
     try{
         const sortOrder = await Orders.find({user:req.user._id}).sort({
             createdAt:-1
@@ -35,5 +35,7 @@ router.get('/sortOrder',cookiejwtAuth,async(req,res)=>{
 
     }
 })
+
+module.exports = router;
 
 

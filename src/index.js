@@ -24,6 +24,7 @@ const passwordReset =require('./passwordReset.js');
 const userRouter = require('../clientRequest/orders.js')
 const cartRouter = require('../clientRequest/cartRoute.js')
 const checkoutRouter = require('../clientRequest/checkoutRoute.js')
+const orderRouter = require('../clientRequest/orderRoute.js');
 
 const app= express();
 app.use(express.json());
@@ -35,6 +36,7 @@ app.use(cookieParser());
 app.use('/api/user',userRouter);
 app.use('/api/cart',cartRouter);
 app.use('/api/checkout',checkoutRouter);
+app.use('/api/order',orderRouter);
 
 app.get('/',(req,res)=>{
    res.render('login');

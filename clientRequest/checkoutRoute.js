@@ -99,7 +99,7 @@ router.post('/:id/finalize',cookiejwtAuth,async(req,res)=>{
               checkout.isFinalized = true;
               checkout.isFinalizedAt= Date.now();
 
-        }
+        }  
     //delete checkout cart since its already converted to an order
          await Cart.findOneAndDelete({user:checkout.user})
          return res.satus(200).json({finalOrder});
