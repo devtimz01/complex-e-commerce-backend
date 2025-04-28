@@ -1,10 +1,11 @@
-const checkout = reqiure('../model/checkoutSchema');
+const express= require('express');
+const router = express.Router();
+const checkout = require('../model/checkoutSchema');
 const {cookiejwtAuth,admin} = require('../middleware/cookieJwtAuth');
 const Cart = require('../model/cartSchema');
 const productRequestCollection = require('./requestSchema');
 const Orders = require('../model/orderSchema');
-const router = express.Router();
-const stripe = require('stripe')(process.env.STRIPE_KEY);
+//const stripe = require('stripe')(process.env.STRIPE_KEY);
 require('dotenv').config();
 
 //route /api/checkout
