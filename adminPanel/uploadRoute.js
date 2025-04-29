@@ -27,12 +27,12 @@ router.post('/',upload.single("image"),cookiejwtAuth, async(req,res)=>{
         }
         const streamUpload=(fileBuffer)=>{
             return new Promise((resolve,reject)=>{
-                const stream =cloudinary.uploader.upload_stream((result,err)=>{
-                    if(result){
-                        resolve(result);
+                const stream =cloudinary.uploader.upload_stream((err,result)=>{
+                    if(err){
+                        reject(err);
                     }
                     else{
-                        reject;
+                        resolve(result);
                     }
                 })
                 //convert fileBuffer to stream
